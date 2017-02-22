@@ -178,6 +178,11 @@ csx/
 ecf/
 rcf/
 
+
+#CMAKE
+
+cmake-build-debug/
+
 # Windows Store app package directories and files
 AppPackages/
 BundleArtifacts/
