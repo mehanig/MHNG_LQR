@@ -9,8 +9,8 @@
 std::string file_in = "./infile.bmp";
 std::string file_out = "./outfile.bmp";
 
-const int WIDTH = 512;
-const int HEIGHT = 512;
+int WIDTH = 960;
+int HEIGHT = 720;
 int rgb_size = HEIGHT * WIDTH * 3;
 
 
@@ -87,13 +87,14 @@ int main() {
     MHNGN_Pixel * ppixel = new MHNGN_Pixel();
     byte* rgb;
 
-    unsigned char* data = new unsigned char[512*512*3];
+    unsigned char* data = new unsigned char[WIDTH*HEIGHT*3];
     ReadBMP(file_in, data);
 
     ImageMatrix imageData(WIDTH, ImageRowPixels(HEIGHT));
-    for (int i = 0; i < HEIGHT; ++i) {
-        for (int j = 0; j < WIDTH*3; j += 3) {
-            imageData[i][j / 3] = {data[(i*WIDTH*3) + j] ,data[(i*WIDTH*3) + j + 1],data[(i*WIDTH*3) + j + 2]};
+    std::cout << imageData.size() << "OK";
+    for (int i = 0; i < WIDTH; ++i) {
+        for (int j = 0; j < HEIGHT*3; j += 3) {
+            imageData[i][j / 3] = {data[(i*HEIGHT*3) + j] ,data[(i*HEIGHT*3) + j + 1],data[(i*HEIGHT*3) + j + 2]};
         }
     }
     imageData.shrink_to_fit();
@@ -102,14 +103,15 @@ int main() {
     // ACTUAL CODE
     // ************
 
-    MHNG_math::sobelFilter(imageData);
-
+    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
+    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
+    imageData = bw_image_sobel;
 
     //************
     // END
     // ************
 
-    unsigned char* processed_data = new unsigned char[512*512*3];
+    unsigned char* processed_data = new unsigned char[WIDTH*HEIGHT*3];
     int iter = 0;
     for (int i = 0; i < WIDTH; ++i) {
         for (int j = 0; j < HEIGHT; ++j) {

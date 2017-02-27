@@ -12,13 +12,19 @@ struct MHNGN_Pixel {
     MHNG_PIXELSIZE B;
 };
 
+typedef size_t MHNG_Pixel_GRAYSCALE;
 
 typedef std::vector<MHNGN_Pixel> ImageRowPixels;
 typedef std::vector<ImageRowPixels> ImageMatrix;
 
+typedef std::vector<MHNG_Pixel_GRAYSCALE> ImageRowPixelsGRAY;
+typedef std::vector<ImageRowPixelsGRAY> ImageMatrixGrayScale;
+
 class MHNG_Frame {
 
 };
+
+
 
 
 #endif //LQR_TYPEDEFS_H_H
