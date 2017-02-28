@@ -70,43 +70,46 @@ namespace MHNG_math {
     // TODO: MIGHT BE OVERFLOW !!! LARGE SUMM!
     // TODO: CONTOUR NOT AFFECTED!!
     MHNG_SeamCarve getSeamCarveVertical(const ImageMatrixGrayScale& image) {
-        MHNG_SeamCarve carve(image[0].size(), MHNG_PixelLocation());
-        ImageMatrixGrayScale lookup_path = image;
-
-        //TODO: gray_image = inverted image
-        ImageMatrixGrayScale lookup_value = image;
-        for (int j = 0; j < image[0].size(); ++j) {
-            lookup_path[0][j] = 99999999999;
-            lookup_value[0][j] = image[0][j];
+        int width = image.size();
+        int height = image[0].size();
+        MHNG_SeamCarve carve(height, MHNG_PixelLocation());
+        int lookup_path[width][height];
+        int lookup_value[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                lookup_path[i][j] = 0;
+                lookup_value[i][j] = image[i][j];
+            }
         }
 
+        //TODO: gray_image = inverted image
+//        for (int i = 0; i < width; ++i) {
+//            lookup_path[i][0] = 999999999;
+//            lookup_value[i][0] = image[i][0];
+//        }
+
         // lookup_path = 1 - go [i-1][j-1] , lookup_path = 2 - go [i][j-1], lookup_path = 3 - go [i+1][j-1]
-        for (int i = 1; i < image.size() - 1; ++i) {
-            for (int j = 1; j < image[0].size() - 1; ++j) {
+        for (int i = 0; i < width; ++i) {
+            for (int j = 1; j < height; ++j) {
                 int prev_hor = j - 1;
-                if (image[i][j] + lookup_value[i][prev_hor] < image[i][j] + lookup_value[i-1][prev_hor]){
-                    if (image[i][j] + lookup_value[i][prev_hor] <= image[i][j] + lookup_value[i+1][prev_hor]) {
-                        lookup_path[i][j] = 2;
-                        lookup_value[i][j] = image[i][j] + lookup_value[i][prev_hor];
-                    } else {
-                        lookup_path[i][j] = 3;
-                        lookup_value[i][j] = image[i][j] + lookup_value[i+1][prev_hor];
-                    }
+                int up = image[i][j] + lookup_value[i][prev_hor];
+                int left;
+                if (i > 0) { left = image[i][j] + lookup_value[i-1][prev_hor]; } else {left = up;}
+                int right;
+                if (i < width-1) { right = image[i][j] + lookup_value[i+1][prev_hor]; } else { right = up;}
+                int best_way = std::min({up, left, right});
+                lookup_value[i][j] = best_way;
+                if (best_way == up) {
+                    lookup_path[i][j] = 2;
+                } else if (best_way == left) {
+                    lookup_path[i][j] = 1;
                 } else {
-                    if (image[i][j] + lookup_value[i-1][prev_hor] < image[i][j] + lookup_value[i+1][prev_hor]) {
-                        lookup_path[i][j] = 1;
-                        lookup_value[i][j] = image[i][j] + lookup_value[i-1][prev_hor];
-                    } else {
-                        lookup_path[i][j] = 3;
-                        lookup_value[i][j] = image[i][j] + lookup_value[i+1][prev_hor];
-                    }
+                    lookup_path[i][j] = 3;
                 }
             }
         }
         int carve_start = 1;
         int min_val = std::numeric_limits<int>::max();
-        int width = image.size();
-        int height = image[0].size();
         for (int k = 1; k < width - 1 ; ++k) {
             if (lookup_value[k][height - 1] < min_val) {
                 carve_start = k;

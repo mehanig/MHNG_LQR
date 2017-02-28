@@ -6,8 +6,8 @@
 #include "MHNG_math.h"
 #include "file_operations.h"
 
-std::string file_in = "./infile_1.bmp";
-std::string file_out = "./infile_1_out-100.bmp";
+std::string file_in = "./mhng_crop.bmp";
+std::string file_out = "./mhng_crop.bmp";
 
 int WIDTH;
 int HEIGHT;
@@ -117,21 +117,32 @@ int main() {
     // ACTUAL CODE
     // ************
 
+
+//
+//    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
+//    MHNG_SeamCarve carve = MHNG_math::getSeamCarveVertical(sobel);
+////    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
+//
+//    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
+//
+//
+////    WIDTH = WIDTH - RESIZE;
+//
+//    imageData = bw_image_sobel;
+//    for (auto k = carve.cbegin(); k != carve.cend(); ++k) {
+//        imageData[k->x][k->y].G = 0;
+//        imageData[k->x][k->y].B = 0;
+//        imageData[k->x][k->y].R = 250;
+//    }
+
+
+    RESIZE = 1;
     ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
-    MHNG_SeamCarve carve = MHNG_math::getSeamCarveVertical(sobel);
-//    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
-
-    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
-
+    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
+    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(resized);
+    imageData = bw_image_sobel;
 
 //    WIDTH = WIDTH - RESIZE;
-
-    imageData = bw_image_sobel;
-    for (auto k = carve.cbegin(); k != carve.cend(); ++k) {
-        imageData[k->x][k->y].G = 0;
-        imageData[k->x][k->y].B = 0;
-        imageData[k->x][k->y].R = 250;
-    }
 
     //************
     // END
