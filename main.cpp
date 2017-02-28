@@ -6,20 +6,35 @@
 #include "MHNG_math.h"
 #include "file_operations.h"
 
-std::string file_in = "./kon.bmp";
+std::string file_in = "./LOL.bmp";
 std::string file_out = "./loloutfile_next.bmp";
 
-int WIDTH = 914;
-int HEIGHT = 686;
-int rgb_size = HEIGHT * WIDTH * 3;
-
+int WIDTH;
+int HEIGHT;
+int FILESIZE;
 
 char* BMPHEADER = new char[54];
-int FILESIZE = 0;
 
 //*******
 // READ BMP FOR TESTING ONLY 24 BITS
 //*******
+
+void getBMPSizes(std::string filename, int& WIDTH, int& HEIGHT, int& FILESIZE) {
+    int i;
+    FILE* f = fopen(filename.c_str(), "rb");
+
+    if(f == NULL)
+        throw "Argument Exception";
+
+    unsigned char info[54];
+    fread(info, sizeof(unsigned char), 54, f); // read the 54-byte header
+
+    WIDTH = *(int*)&info[18];
+    HEIGHT = *(int*)&info[22];
+    int row_padded = (WIDTH*3 + 3) & (~3);
+    FILESIZE = HEIGHT * row_padded;
+    fclose(f);
+}
 
 int ReadBMP(std::string filename, unsigned char* data) {
     int i;
@@ -59,7 +74,6 @@ int ReadBMP(std::string filename, unsigned char* data) {
             data[(i*width*3) + j+2] = tmp_row[j];
         }
     }
-//    std::cout << " WAS " << (int)data[783477] << std::endl;
     fclose(f);
     return width * height * 3;
 }
@@ -68,7 +82,6 @@ int ReadBMP(std::string filename, unsigned char* data) {
 int WriteBMP(std::string filename, char* data) {
     std::ofstream f(filename, std::ios::out | std::ios::binary);
     f.write(BMPHEADER, 54);
-//    f.close();
 
     int width = *(int*)&BMPHEADER[18];
     int height = *(int*)&BMPHEADER[22];
@@ -85,8 +98,8 @@ int WriteBMP(std::string filename, char* data) {
 //*******
 
 int main() {
-    std::cout << "Test Build" << std::endl;
-
+    getBMPSizes(file_in, WIDTH, HEIGHT, FILESIZE);
+    std::cout << WIDTH << " " << HEIGHT << " " << FILESIZE;
     unsigned char* data = new unsigned char[WIDTH*HEIGHT*3];
     ReadBMP(file_in, data);
 
@@ -94,19 +107,7 @@ int main() {
     std::cout << imageData.size() << "OK";
     for (int i = 0; i < HEIGHT; ++i) {
         for (int j = 0; j < WIDTH*3; j += 3) {
-            imageData[j / 3][HEIGHT - i] = {data[i*WIDTH*3 + j] ,data[i*WIDTH*3 + j+1],data[i*WIDTH*3 + j+2]};
-//            if (imageData[i][j / 3].B != 0 || imageData[i][j / 3].G != 0 || imageData[i][j / 3].R != 0) {
-//                std::cout<<"\ni,j:"<<i<<" "<<j / 3 << " "<<imageData[i][j /3 ].B<<" "<<imageData[i][j / 3].G<<" "<<imageData[i][j / 3].R<<"|\n";
-//            }
-//            std::cout<<"\nR:"<<imageData[i][j].R<<"\n";
-        }
-    }
-    int tmp;
-    for (int i = 0; i < WIDTH; ++i) {
-        for (int j = 0; j < HEIGHT; ++j) {
-//            if (imageData[i][j].B != 0 || imageData[i][j].G != 0 || imageData[i][j].R != 0) {
-//                std::cout<<"\ni,j:"<<i<<" "<<j<< " "<<imageData[i][j].B<<" "<<imageData[i][j].G<<" "<<imageData[i][j].R<<"|\n";
-//            }
+            imageData[j / 3][HEIGHT - i ] = {data[i*WIDTH*3 + j] ,data[i*WIDTH*3 + j+1],data[i*WIDTH*3 + j+2]};
         }
     }
     imageData.shrink_to_fit();
@@ -114,9 +115,9 @@ int main() {
     // ACTUAL CODE
     // ************
 
-//    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
-//    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
-//    imageData = bw_image_sobel;
+    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
+    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
+    imageData = bw_image_sobel;
 
     //************
     // END
@@ -124,17 +125,12 @@ int main() {
 //
     std::cout<<"AAAA"<<std::endl;
     int iter = 0;
-    int row_padded = (WIDTH*3 + 3) & (~3);
-    FILESIZE = HEIGHT * row_padded;
     char* processed_data = new char[FILESIZE];
+    std::cout<<FILESIZE<<std::endl;
+    int row_padded = (WIDTH*3 + 3) & (~3);
     for (int j = HEIGHT-1; j >= 0; j--) {
         int cur_in_row = 0;
         for (int i = 0; i < WIDTH; i++) {
-//            if (imageData[i][j].B != 0 || imageData[i][j].G != 0 || imageData[i][j].R != 0) {
-//                std::cout<<"\ni,j:"<<i<<" "<<j<< " "<<imageData[i][j].B<<" "<<imageData[i][j].G<<" "<<imageData[i][j].R<<"|\n";
-//            }
-//            int r = imageData[i][j].R;
-//            char aaa = (char)
             processed_data[iter++] = (unsigned char)imageData[i][j].R;
             processed_data[iter++] = (unsigned char)imageData[i][j].G;
             processed_data[iter++] = (unsigned char)imageData[i][j].B;
@@ -147,7 +143,6 @@ int main() {
     }
 
     std::cout<<"WRITEN " <<iter<<std::endl;
-//    std::cout<<"DATA:"<<processed_data<<std::endl;
     WriteBMP(file_out, processed_data);
     delete []data;
     delete []processed_data;
