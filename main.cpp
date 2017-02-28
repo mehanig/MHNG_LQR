@@ -6,11 +6,11 @@
 #include "MHNG_math.h"
 #include "file_operations.h"
 
-std::string file_in = "./mhng.bmp";
+std::string file_in = "./kon.bmp";
 std::string file_out = "./loloutfile_next.bmp";
 
-int WIDTH = 1222;
-int HEIGHT = 984;
+int WIDTH = 914;
+int HEIGHT = 686;
 int rgb_size = HEIGHT * WIDTH * 3;
 
 
@@ -114,9 +114,9 @@ int main() {
     // ACTUAL CODE
     // ************
 
-    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
-    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
-    imageData = bw_image_sobel;
+//    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
+//    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
+//    imageData = bw_image_sobel;
 
     //************
     // END
@@ -129,7 +129,7 @@ int main() {
     char* processed_data = new char[FILESIZE];
     for (int j = HEIGHT-1; j >= 0; j--) {
         int cur_in_row = 0;
-        for (int i = 0; i < WIDTH; ++i) {
+        for (int i = 0; i < WIDTH; i++) {
 //            if (imageData[i][j].B != 0 || imageData[i][j].G != 0 || imageData[i][j].R != 0) {
 //                std::cout<<"\ni,j:"<<i<<" "<<j<< " "<<imageData[i][j].B<<" "<<imageData[i][j].G<<" "<<imageData[i][j].R<<"|\n";
 //            }
@@ -140,10 +140,10 @@ int main() {
             processed_data[iter++] = (unsigned char)imageData[i][j].B;
             cur_in_row +=3;
         }
-//        while (cur_in_row < row_padded) {
-//            iter++;
-//            cur_in_row++;
-//        }
+        while (cur_in_row < row_padded) {
+            iter++;
+            cur_in_row++;
+        }
     }
 
     std::cout<<"WRITEN " <<iter<<std::endl;
