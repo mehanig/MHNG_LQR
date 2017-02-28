@@ -284,4 +284,6 @@ __pycache__/
 
 .DS_Store
 *.png
+*.jpg
+*.bmp
 LQR

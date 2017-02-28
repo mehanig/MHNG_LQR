@@ -107,7 +107,7 @@ int main() {
     std::cout << imageData.size() << "OK";
     for (int i = 0; i < HEIGHT; ++i) {
         for (int j = 0; j < WIDTH*3; j += 3) {
-            imageData[j / 3][HEIGHT - i ] = {data[i*WIDTH*3 + j] ,data[i*WIDTH*3 + j+1],data[i*WIDTH*3 + j+2]};
+            imageData[j / 3][HEIGHT - i -1 ] = {data[i*WIDTH*3 + j] ,data[i*WIDTH*3 + j+1],data[i*WIDTH*3 + j+2]};
         }
     }
     imageData.shrink_to_fit();
