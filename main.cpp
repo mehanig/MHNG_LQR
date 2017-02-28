@@ -6,12 +6,14 @@
 #include "MHNG_math.h"
 #include "file_operations.h"
 
-std::string file_in = "./LOL.bmp";
-std::string file_out = "./loloutfile_next.bmp";
+std::string file_in = "./infile_1.bmp";
+std::string file_out = "./infile_1_out-100.bmp";
 
 int WIDTH;
 int HEIGHT;
 int FILESIZE;
+
+int RESIZE = 0;
 
 char* BMPHEADER = new char[54];
 
@@ -116,24 +118,43 @@ int main() {
     // ************
 
     ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
+    MHNG_SeamCarve carve = MHNG_math::getSeamCarveVertical(sobel);
+//    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
+
     ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(sobel);
+
+
+//    WIDTH = WIDTH - RESIZE;
+
     imageData = bw_image_sobel;
+    for (auto k = carve.cbegin(); k != carve.cend(); ++k) {
+        imageData[k->x][k->y].G = 0;
+        imageData[k->x][k->y].B = 0;
+        imageData[k->x][k->y].R = 250;
+    }
 
     //************
     // END
     // ************
 //
-    std::cout<<"AAAA"<<std::endl;
     int iter = 0;
+    int row_padded = (WIDTH*3 + 3) & (~3);
+//    BMPHEADER[18] = (char)WIDTH;
+//    FILESIZE = HEIGHT * row_padded;
     char* processed_data = new char[FILESIZE];
     std::cout<<FILESIZE<<std::endl;
-    int row_padded = (WIDTH*3 + 3) & (~3);
     for (int j = HEIGHT-1; j >= 0; j--) {
         int cur_in_row = 0;
-        for (int i = 0; i < WIDTH; i++) {
+        for (int i = 0; i < WIDTH - RESIZE; i++) {
             processed_data[iter++] = (unsigned char)imageData[i][j].R;
             processed_data[iter++] = (unsigned char)imageData[i][j].G;
             processed_data[iter++] = (unsigned char)imageData[i][j].B;
+            cur_in_row +=3;
+        }
+        for (int i = 0; i < RESIZE; i++) {
+            processed_data[iter++] = (unsigned char) 255;
+            processed_data[iter++] = (unsigned char) 255;
+            processed_data[iter++] = (unsigned char) 255;
             cur_in_row +=3;
         }
         while (cur_in_row < row_padded) {

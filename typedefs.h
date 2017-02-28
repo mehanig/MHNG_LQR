@@ -12,6 +12,14 @@ struct MHNGN_Pixel {
     MHNG_PIXELSIZE B;
 };
 
+struct MHNG_PixelLocation {
+    int x;
+    int y;
+    MHNG_PixelLocation(): x(0), y(0) {};
+};
+
+typedef std::vector<MHNG_PixelLocation> MHNG_SeamCarve;
+
 typedef size_t MHNG_Pixel_GRAYSCALE;
 
 typedef std::vector<MHNGN_Pixel> ImageRowPixels;
