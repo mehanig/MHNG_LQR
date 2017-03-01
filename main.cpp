@@ -6,8 +6,8 @@
 #include "MHNG_math.h"
 #include "file_operations.h"
 
-std::string file_in = "./btow_copy.bmp";
-std::string file_out = "./btow_crop_200.bmp";
+std::string file_in = "./b.bmp";
+std::string file_out = "./b_out.bmp";
 
 int WIDTH;
 int HEIGHT;
@@ -139,15 +139,21 @@ int main() {
 
 
     // BW CARVES
-//    RESIZE = 500;
+//    RESIZE = 200;
 //    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
 //    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
 //    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(resized);
 //    imageData = bw_image_sobel;
-//
 
-    RESIZE = 500;
+
+    RESIZE = 300;
     MHNG_math::resizeLQRHorisontalInPlace(imageData, RESIZE);
+
+//
+//
+//    RESIZE = 200;
+//    ImageMatrix imdata = MHNG_math::resizeLQRHorisontalRGB(imageData, RESIZE);
+//    imageData = imdata;
 
 
     //************
