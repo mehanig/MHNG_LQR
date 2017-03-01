@@ -6,8 +6,8 @@
 #include "MHNG_math.h"
 #include "file_operations.h"
 
-std::string file_in = "./mhng_crop.bmp";
-std::string file_out = "./mhng_crop.bmp";
+std::string file_in = "./btow_copy.bmp";
+std::string file_out = "./btow_crop_200.bmp";
 
 int WIDTH;
 int HEIGHT;
@@ -118,6 +118,7 @@ int main() {
     // ************
 
 
+    // DRAW CARVE!
 //
 //    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
 //    MHNG_SeamCarve carve = MHNG_math::getSeamCarveVertical(sobel);
@@ -136,13 +137,18 @@ int main() {
 //    }
 
 
-    RESIZE = 1;
-    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
-    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
-    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(resized);
-    imageData = bw_image_sobel;
 
-//    WIDTH = WIDTH - RESIZE;
+    // BW CARVES
+//    RESIZE = 500;
+//    ImageMatrixGrayScale sobel = MHNG_math::sobelFilter(imageData);
+//    ImageMatrixGrayScale resized = MHNG_math::resizeLQRHorisontal(sobel, RESIZE);
+//    ImageMatrix bw_image_sobel = MHNG_math::grayToRgb(resized);
+//    imageData = bw_image_sobel;
+//
+
+    RESIZE = 500;
+    MHNG_math::resizeLQRHorisontalInPlace(imageData, RESIZE);
+
 
     //************
     // END

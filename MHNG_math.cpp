@@ -3,12 +3,9 @@
 namespace MHNG_math {
 
     ImageMatrixGrayScale rgbToGray(const ImageMatrix& image){
-        ImageMatrixGrayScale gray_image(image.size(), ImageRowPixelsGRAY(image.begin()->size()));
         int v_size = (int)image.size();
         int h_size = (int)image[0].size();
-        int gx = 0;
-        int gy = 0;
-        int sum = 0;
+        ImageMatrixGrayScale gray_image(v_size, ImageRowPixelsGRAY(h_size));
 
         for (int i = 0; i < v_size; ++i) {
             for (int j = 0; j < h_size; ++j) {
@@ -48,7 +45,6 @@ namespace MHNG_math {
                 gx = xGradient(tmp_image, i, j);
                 gy = yGradient(tmp_image, i, j);
                 sum = abs(gx) + abs(gy);
-//              std::cout<< sum << std::endl;
                 sum = sum > 255 ? 255:sum;
                 sum = sum < 0 ? 0 : sum;
                 gray_image[i][j] = sum;
@@ -74,7 +70,7 @@ namespace MHNG_math {
         int height = image[0].size();
         MHNG_SeamCarve carve(height, MHNG_PixelLocation());
         int lookup_path[width][height];
-        int lookup_value[width][height];
+        ull lookup_value[width][height];
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 lookup_path[i][j] = 0;
@@ -82,22 +78,18 @@ namespace MHNG_math {
             }
         }
 
-        //TODO: gray_image = inverted image
-//        for (int i = 0; i < width; ++i) {
-//            lookup_path[i][0] = 999999999;
-//            lookup_value[i][0] = image[i][0];
-//        }
 
         // lookup_path = 1 - go [i-1][j-1] , lookup_path = 2 - go [i][j-1], lookup_path = 3 - go [i+1][j-1]
-        for (int i = 0; i < width; ++i) {
-            for (int j = 1; j < height; ++j) {
+        for (int j = 1; j < height; ++j) {
+            for (int i = 0; i < width; ++i) {
                 int prev_hor = j - 1;
-                int up = image[i][j] + lookup_value[i][prev_hor];
-                int left;
-                if (i > 0) { left = image[i][j] + lookup_value[i-1][prev_hor]; } else {left = up;}
-                int right;
-                if (i < width-1) { right = image[i][j] + lookup_value[i+1][prev_hor]; } else { right = up;}
-                int best_way = std::min({up, left, right});
+                ull up = lookup_value[i][j] + lookup_value[i][prev_hor];
+                ull left;
+                if (i > 0) { left = lookup_value[i][j] + lookup_value[i-1][prev_hor]; } else {left = up;}
+                ull right;
+                if (i < width-1) { right = lookup_value[i][j] + lookup_value[i+1][prev_hor]; } else { right = up;}
+                ull best_way = std::min({up, left, right});
+//                std::cout << best_way << " " << up << " " << left << " " << right << " " << i << " " << j <<std::endl;
                 lookup_value[i][j] = best_way;
                 if (best_way == up) {
                     lookup_path[i][j] = 2;
@@ -108,9 +100,9 @@ namespace MHNG_math {
                 }
             }
         }
-        int carve_start = 1;
-        int min_val = std::numeric_limits<int>::max();
-        for (int k = 1; k < width - 1 ; ++k) {
+        int carve_start = 0;
+        ull min_val = lookup_value[0][height - 1];
+        for (int k = 0; k < width ; ++k) {
             if (lookup_value[k][height - 1] < min_val) {
                 carve_start = k;
                 min_val = lookup_value[k][height - 1];
@@ -118,10 +110,8 @@ namespace MHNG_math {
         }
         int location_h = carve_start;
         int location_v = height - 1;
-        carve[0].x = location_h;
-        carve[0].y = location_v;
-        for (int l = 0; l < width ; ++l) {
-        }
+        carve[height-1].x = location_h;
+        carve[height-1].y = location_v;
         for (int k = 1; k < height ; ++k) {
             if (lookup_path[location_h][location_v] == 1) {
                 --location_h;
@@ -129,21 +119,41 @@ namespace MHNG_math {
                 ++location_h;
             }
             --location_v;
-            carve[k].x = location_h;
-            carve[k].y = location_v;
+            carve[height-k-1].x = location_h;
+            carve[height-k-1].y = location_v;
         }
+
+        for (int k = 0; k < height ; ++k) {
+            int min_val = std::numeric_limits<int>::max();
+            for (int j = 0; j < width ; ++j) {
+                if (lookup_value[j][k] < min_val) {
+                    min_val = lookup_value[j][k];
+                }
+//                std::cout << " " << lookup_value[j][k] << std::endl;
+            }
+//            std::cout << " " << min_val << std::endl;
+        }
+
+//        for (int k = 0; k < height ; ++k) {
+//            std::cout<<"K: " << k << " |";
+//            for (int j = 0; j < 35 ; ++j) {
+//                std::cout<< lookup_value[j][k] << " ";
+//            }
+//            std::cout<<"\n \n";
+//        }
+
         return carve;
     }
 
     ImageMatrixGrayScale removeCarveVertical(const ImageMatrixGrayScale& image, MHNG_SeamCarve carve_vertical) {
 
-        ImageMatrixGrayScale resized_gray_image(image.size()-1, ImageRowPixelsGRAY(image.begin()->size()));
-
         int height = image[0].size();
+        int width = image.size();
+        ImageMatrixGrayScale resized_gray_image(width-1, ImageRowPixelsGRAY(height));
         int shifted = 0;
         for (int j = 0; j < height; ++j) {
             shifted = 0;
-            for (int i = 0; i < image.size()-1; ++i) {
+            for (int i = 0; i < width-1; ++i) {
                 if (carve_vertical[j].x == i ) {
                     shifted = 1;
                 }
@@ -156,6 +166,28 @@ namespace MHNG_math {
         }
         return resized_gray_image;
     }
+
+    int removeCarveVerticalInPlace(ImageMatrix& image, MHNG_SeamCarve& carve_vertical) {
+        ull height = image[0].size();
+        ull width = image.size();
+        for (int j = 0; j < height; ++j) {
+            for (int i = carve_vertical[j].x; i < width-1; ++i) {
+                image[i][j] = image[i+1][j];
+            }
+        }
+        image.pop_back();
+        return 0;
+    }
+
+    int resizeLQRHorisontalInPlace(ImageMatrix& image, int remove_val) {
+        for (int i = 0; i < remove_val; ++i) {
+            auto seam = getSeamCarveVertical(rgbToGray(image));
+            removeCarveVerticalInPlace(image, seam);
+        }
+        return 0;
+    }
+
+
 
     ImageMatrixGrayScale resizeLQRHorisontal(const ImageMatrixGrayScale& image, int remove_val) {
         ImageMatrixGrayScale rescaled = image;

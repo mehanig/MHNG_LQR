@@ -6,6 +6,8 @@
 typedef size_t MHNG_PIXELSIZE;
 typedef unsigned char byte;
 
+typedef unsigned long long int ull;
+
 struct MHNGN_Pixel {
     MHNG_PIXELSIZE R;
     MHNG_PIXELSIZE G;

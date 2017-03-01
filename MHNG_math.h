@@ -16,6 +16,9 @@ namespace MHNG_math {
     MHNG_SeamCarve getSeamCarveVertical(const ImageMatrixGrayScale& image);
     ImageMatrixGrayScale removeCarve(const ImageMatrixGrayScale& imageMatrixGrayScale, MHNG_SeamCarve carve);
     ImageMatrixGrayScale resizeLQRHorisontal(const ImageMatrixGrayScale& image, int remove_val);
+
+    int removeCarveVerticalInPlace(ImageMatrix& image, MHNG_SeamCarve& carve_vertical);
+    int resizeLQRHorisontalInPlace(ImageMatrix& image, int remove_val);
 }
 
 #endif //LQR_MHNG_MATH_H
