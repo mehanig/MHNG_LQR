@@ -5,9 +5,10 @@
 #include "typedefs.h"
 #include "MHNG_math.h"
 #include "file_operations.h"
+//#include <omp.h>
 
 std::string file_in = "./b.bmp";
-std::string file_out = "./b_out.bmp";
+std::string file_out = "./b_spd.bmp";
 
 int WIDTH;
 int HEIGHT;
@@ -107,6 +108,8 @@ int main() {
 
     ImageMatrix imageData(WIDTH, ImageRowPixels(HEIGHT));
     std::cout << imageData.size() << "OK";
+
+    #pragma omp parallel
     for (int i = 0; i < HEIGHT; ++i) {
         for (int j = 0; j < WIDTH*3; j += 3) {
             imageData[j / 3][HEIGHT - i -1 ] = {data[i*WIDTH*3 + j] ,data[i*WIDTH*3 + j+1],data[i*WIDTH*3 + j+2]};
@@ -147,7 +150,14 @@ int main() {
 
 
     RESIZE = 300;
+    clock_t begin = clock();
+
     MHNG_math::resizeLQRHorisontalInPlace(imageData, RESIZE);
+    clock_t end = clock();
+    clock_t exec_time = end - begin;
+    std::cout << ">> Execution time ..." << std::endl;
+    std::cout << "   cycles: " << exec_time << std::endl;
+    std::cout << "   time: " << ((double)exec_time /  CLOCKS_PER_SEC) << "s" << std::endl;
 
 //
 //
