@@ -5,9 +5,8 @@
 #include "typedefs.h"
 #include "MHNG_math.h"
 #include "file_operations.h"
-//#include <omp.h>
 
-std::string file_in = "./b.bmp";
+std::string file_in = "./boat-1024.bmp";
 std::string file_out = "./b_spd.bmp";
 
 int WIDTH;
@@ -149,7 +148,7 @@ int main() {
 //    imageData = bw_image_sobel;
 
 
-    RESIZE = 300;
+    RESIZE = 500;
     clock_t begin = clock();
 
     MHNG_math::resizeLQRHorisontalInPlace(imageData, RESIZE);

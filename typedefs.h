@@ -32,7 +32,7 @@ typedef std::vector<ImageRowPixelsGRAY> ImageMatrixGrayScale;
 
 typedef std::vector<ull> LookUpRow;
 typedef std::vector<LookUpRow> LookUpTable;
-typedef std::array<std::vector<std::vector<ull>>, 2> LookUpData;
+typedef std::array<std::vector<std::vector<ull>>, 3> LookUpData;
 
 
 class MHNG_Frame {
