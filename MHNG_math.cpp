@@ -162,9 +162,6 @@ namespace MHNG_math {
 
     void UpdateCacheAfterCarving(LookUpData& cache, const MHNG_SeamCarve &carve) {
         // Lookup_path edits
-//        auto image = cache[0];
-//        auto value = cache[1];
-//        auto raw_value = cache[2];
         ull height = cache[0][0].size();
         ull width = cache[0].size();
 
@@ -172,55 +169,44 @@ namespace MHNG_math {
             for (int i = carve[j].x; i < width-1; ++i) {
                 cache[0][i][j] = cache[0][i+1][j];
                 cache[1][i][j] = cache[1][i+1][j];
+                cache[2][i][j] = cache[2][i+1][j];
 //                raw_value[i][j] = raw_value[i+1][j];
             }
         }
         cache[0].pop_back();
         cache[1].pop_back();
+        cache[2].pop_back();
 //        raw_value.pop_back();
 
         std::vector<int> buffer;
         std::vector<int> new_buffer;
-        int el = carve[0].x;
-        int curr_carve_y = 0;
-        buffer.push_back(el);
-//        while (buffer.size() && curr_carve_y < height-1) {
-//            // Check Left, Down and Right on lower lvl below if it's needed to be updated
-//            int curr_x = buffer.back();
-////            if (curr_x > 1 &&  raw_value[curr_x-1][curr_carve_y+1]+value[curr_x][curr_carve_y] < value[curr_x-1][curr_carve_y+1]) {
-////                value[curr_x - 1][curr_carve_y + 1] =
-////                        raw_value[curr_x - 1][curr_carve_y + 1] + value[curr_x][curr_carve_y];
-////                image[curr_x - 1][curr_carve_y + 1] = 3;
-////                new_buffer.push_back(curr_x - 1);
-////            }
-////            if (raw_value[curr_x][curr_carve_y+1]+value[curr_x][curr_carve_y] < value[curr_x][curr_carve_y+1]) {
-////                value[curr_x][curr_carve_y + 1] =
-////                        raw_value[curr_x][curr_carve_y+1]+value[curr_x][curr_carve_y];
-////                image[curr_x][curr_carve_y + 1] = 2;
-////                new_buffer.push_back(curr_x);
-////            }
-////            if (curr_x < width - 2 && raw_value[curr_x+1][curr_carve_y+1]+value[curr_x][curr_carve_y] < value[curr_x+1][curr_carve_y+1]) {
-////                value[curr_x+1][curr_carve_y + 1] =
-////                        raw_value[curr_x+1][curr_carve_y + 1] + value[curr_x][curr_carve_y];
-////                image[curr_x+1][curr_carve_y + 1] = 1;
-////                new_buffer.push_back(curr_x + 1);
-////            }
-//
-//            buffer.pop_back();
-//            // If we already done with this line, go down to next line;
-//            if (buffer.size() == 0) {
-//                curr_carve_y++;
-//                buffer = new_buffer;
-//                new_buffer.clear();
-//            }
-//        }
-
-        for (int j = 0; j < height; ++j) {
-            for (int i = carve[j].x; i < width-1; ++i) {
-                cache[2][i][j] = cache[2][i+1][j];
+        int curr_carve_x = carve[0].x;
+        int delta = 1;
+        int new_width = (int)width -1 ;
+        for (int j = 1; j < height; j++) {
+            int left_bound = std::max({curr_carve_x - delta, 0});
+            int right_bound = std::min({curr_carve_x + delta, new_width});
+//            std::cout << left_bound << " " << right_bound << " " << width << "\n";
+            for (int i = left_bound; i < right_bound; i++) {
+                int prev_hor = j - 1;
+                ull up = cache[2][i][j] + cache[1][i][prev_hor];
+                ull left;
+                if (i > 0) { left = cache[2][i][j] + cache[1][i-1][prev_hor]; } else {left = up;}
+                ull right;
+                if (i < new_width - 1) { right = cache[2][i][j] + cache[1][i+1][prev_hor]; } else { right = up;}
+                ull best_way = std::min({up, left, right});
+                cache[1][i][j] = best_way;
+                if (best_way == up) {
+                    cache[0][i][j] = 2;
+                } else if (best_way == left) {
+                    cache[0][i][j] = 1;
+                } else {
+                    cache[0][i][j] = 3;
+                }
             }
+            delta = 20;
+            curr_carve_x = carve[j].x;
         }
-        cache[2].pop_back();
     }
 
     LookUpData CacheLookupPath(const ImageMatrixGrayScale& image) {

@@ -148,7 +148,7 @@ int main() {
 //    imageData = bw_image_sobel;
 
 
-    RESIZE = 500;
+    RESIZE = 300;
     clock_t begin = clock();
 
     MHNG_math::resizeLQRHorisontalInPlace(imageData, RESIZE);
